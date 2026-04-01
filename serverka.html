@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Front-End</title>
+</head>
+<body>
+    <h1>Salaaman</h1>
+    <button id="fetch-message-btn" type="button">Soo hel</button>
+
+    <form id="contact-form">
+        <input id="name" type="text" placeholder="name" />
+        <textarea id="message" placeholder="message"></textarea>
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="form-status"></p>
+
+    <script>
+        const heading = document.querySelector('h1');
+        const fetchMessageButton = document.getElementById('fetch-message-btn');
+        const form = document.getElementById('contact-form');
+        const nameInput = document.getElementById('name');
+        const messageInput = document.getElementById('message');
+        const formStatus = document.getElementById('form-status');
+
+        fetchMessageButton.addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:3000/message');
+
+                if (!response.ok) {
+                    throw new Error('Server error');
+                }
+
+                const data = await response.json();
+                heading.textContent = data.message;
+            } catch (error) {
+                console.error('Error:', error);
+                heading.textContent = 'Fariinta lama soo heli karin';
+            }
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const name = nameInput.value.trim();
+            const message = messageInput.value.trim();
+
+            if (!name || !message) {
+                formStatus.textContent = 'Fadlan geli magaca iyo fariinta.';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, message })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Submit failed');
+                }
+
+                const data = await response.json();
+                formStatus.textContent = data.message;
+                form.reset();
+            } catch (error) {
+                console.error('Error:', error);
+                formStatus.textContent = 'Xogta server-ka looma diri karin.';
+            }
+        });
+    </script>
+</body>
+</html>
